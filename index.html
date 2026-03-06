@@ -157,7 +157,6 @@ nav {
   color:var(--muted);
   letter-spacing:0.05em;
 }
-.meta-item svg { color:var(--cyan); }
 .meta-item a { color:var(--cyan);text-decoration:none; }
 .meta-item a:hover { text-decoration:underline; }
 .hero-actions {
@@ -190,25 +189,23 @@ nav {
   background:linear-gradient(135deg, var(--bg2), var(--bg3));
   text-align:center;padding:2rem;
 }
-.photo-placeholder .icon { font-size:3rem;opacity:0.3; }
-.photo-placeholder .label {
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.6rem;
-  letter-spacing:0.2em;
-  color:var(--cyan);
-  text-transform:uppercase;
-  line-height:1.8;
-}
 .photo-placeholder .hint {
   font-family:'JetBrains Mono',monospace;
   font-size:0.55rem;
   color:var(--muted);
   line-height:1.6;
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+}
+.photo-placeholder .hint img {
+  width:100%;height:100%;object-fit:cover;object-position:top;
+  filter:grayscale(20%) contrast(1.1);
 }
 .photo-frame::before {
   content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;
   border:1px solid var(--cyan);
   animation:borderAnim 3s ease infinite alternate;
+  pointer-events:none;z-index:2;
 }
 @keyframes borderAnim {
   0%{box-shadow:0 0 10px rgba(0,229,255,0.2)}
@@ -219,6 +216,7 @@ nav {
   width:20px;height:20px;
   border-color:var(--cyan);border-style:solid;
   border-width:0;
+  z-index:3;pointer-events:none;
 }
 .photo-corner.tl { top:-4px;left:-4px;border-top-width:3px;border-left-width:3px; }
 .photo-corner.tr { top:-4px;right:-4px;border-top-width:3px;border-right-width:3px; }
@@ -234,6 +232,7 @@ nav {
   text-transform:uppercase;
   color:var(--cyan);
   text-align:center;
+  z-index:3;pointer-events:none;
 }
 .photo-badge {
   position:absolute;top:-12px;right:-12px;
@@ -245,6 +244,7 @@ nav {
   padding:0.3rem 0.75rem;
   text-transform:uppercase;
   font-weight:700;
+  z-index:4;
 }
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
@@ -307,6 +307,7 @@ section { position:relative;z-index:2; }
   color:var(--muted);
   display:flex;align-items:center;gap:1rem;
   overflow:hidden;
+  position:relative;z-index:2;
 }
 .terminal-prompt { color:var(--green); }
 .terminal-cmd { color:var(--cyan); }
@@ -350,53 +351,235 @@ section { position:relative;z-index:2; }
 .skill-tag.hot { border-color:rgba(0,255,136,0.3);color:var(--green); }
 .skill-tag.hot:hover { background:rgba(0,255,136,0.1); }
 
-/* PROJECTS */
-.projects-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem; }
+/* ============================================================
+   PROJECTS — REDESIGNED WITH IMAGE SPACE
+   ============================================================ */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 2rem;
+}
+
 .project-card {
-  background:var(--bg2);
-  border:1px solid var(--border);
-  padding:2rem;
-  position:relative;overflow:hidden;
-  transition:all 0.4s;cursor:default;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
 }
-.project-card::after {
-  content:'';position:absolute;bottom:0;left:0;right:0;height:0;
-  background:linear-gradient(to top,rgba(0,229,255,0.04),transparent);
-  transition:height 0.4s;
+.project-card:hover {
+  border-color: rgba(0,229,255,0.35);
+  transform: translateY(-6px);
+  box-shadow: 0 25px 70px rgba(0,229,255,0.09);
 }
-.project-card:hover::after { height:100%; }
-.project-card:hover { border-color:rgba(0,229,255,0.3);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,229,255,0.07); }
+
+/* ---- Project image zone ---- */
+.project-img-zone {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+  flex-shrink: 0;
+}
+
+/* Actual image — shown when src is set */
+.project-img-zone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.5s ease;
+  filter: brightness(0.9) contrast(1.05);
+}
+.project-card:hover .project-img-zone img { transform: scale(1.04); }
+
+/* Placeholder shown when no image */
+.project-img-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, #0c0f1a 0%, #111827 100%);
+}
+/* Hide placeholder when an img sibling exists */
+.project-img-zone img ~ .project-img-placeholder { display: none; }
+
+.project-img-placeholder .ph-icon {
+  font-size: 2.2rem;
+  opacity: 0.25;
+}
+.project-img-placeholder .ph-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  opacity: 0.5;
+  text-align: center;
+  line-height: 1.8;
+}
+.project-img-placeholder .ph-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.7;
+  opacity: 0.7;
+}
+
+/* Animated scan line on placeholder */
+.project-img-placeholder::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--cyan), transparent);
+  opacity: 0.3;
+  animation: scanline 3s ease-in-out infinite;
+}
+@keyframes scanline {
+  0%   { top: 0%;   opacity: 0; }
+  10%  { opacity: 0.4; }
+  90%  { opacity: 0.3; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Grid overlay on placeholder */
+.project-img-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Corner decorations on image zone */
+.project-img-zone::before,
+.project-img-zone::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border-color: var(--cyan);
+  border-style: solid;
+  border-width: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.project-img-zone::before { top: 6px; left: 6px; border-top-width: 2px; border-left-width: 2px; }
+.project-img-zone::after  { top: 6px; right: 6px; border-top-width: 2px; border-right-width: 2px; }
+.project-card:hover .project-img-zone::before,
+.project-card:hover .project-img-zone::after { opacity: 1; }
+
+/* Image-zone bottom corners via wrapper */
+.project-img-corners-bl,
+.project-img-corners-br {
+  position: absolute;
+  bottom: 6px;
+  width: 16px; height: 16px;
+  border-color: var(--cyan);
+  border-style: solid;
+  border-width: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.project-img-corners-bl { left: 6px; border-bottom-width: 2px; border-left-width: 2px; }
+.project-img-corners-br { right: 6px; border-bottom-width: 2px; border-right-width: 2px; }
+.project-card:hover .project-img-corners-bl,
+.project-card:hover .project-img-corners-br { opacity: 1; }
+
+/* ---- Project content ---- */
+.project-body {
+  padding: 1.75rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .project-num {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:4rem;color:rgba(0,229,255,0.06);
-  line-height:1;margin-bottom:0.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  color: rgba(0,229,255,0.06);
+  line-height: 1;
+  margin-bottom: 0.25rem;
 }
-.project-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem; }
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
 .project-name {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:1.6rem;color:var(--paper);
-  line-height:1.1;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: var(--paper);
+  line-height: 1.1;
+  transition: color 0.3s;
 }
+.project-card:hover .project-name { color: var(--cyan); }
 .project-date {
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.6rem;letter-spacing:0.1em;
-  color:var(--muted);white-space:nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 0.2rem;
 }
 .project-subtitle {
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.65rem;letter-spacing:0.1em;
-  color:var(--cyan);margin-bottom:1rem;
-  text-transform:uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
 }
-.project-desc { font-size:0.9rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem; }
-.project-desc li { margin-bottom:0.5rem;padding-left:1rem;position:relative; }
-.project-desc li::before { content:'>';color:var(--cyan);position:absolute;left:0; }
-.project-tech { display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:auto; }
+.project-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+  list-style: none;
+  flex: 1;
+}
+.project-desc li {
+  margin-bottom: 0.45rem;
+  padding-left: 1.1rem;
+  position: relative;
+}
+.project-desc li::before { content: '>'; color: var(--cyan); position: absolute; left: 0; }
+.project-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+}
 .tech-badge {
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.6rem;padding:0.25rem 0.6rem;
-  background:rgba(0,229,255,0.07);border:1px solid rgba(0,229,255,0.15);
-  color:var(--cyan);letter-spacing:0.05em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  background: rgba(0,229,255,0.07);
+  border: 1px solid rgba(0,229,255,0.15);
+  color: var(--cyan);
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+}
+.project-card:hover .tech-badge {
+  background: rgba(0,229,255,0.1);
+  border-color: rgba(0,229,255,0.3);
 }
 
 /* FORMATION */
@@ -487,7 +670,6 @@ section { position:relative;z-index:2; }
 .contact-detail-val a { color:var(--cyan);text-decoration:none; }
 .contact-detail-val a:hover { text-decoration:underline; }
 
-.contact-cta { text-align:center; }
 .cta-big {
   font-family:'Bebas Neue',sans-serif;
   font-size:clamp(40px,5vw,70px);
@@ -548,6 +730,7 @@ footer {
   .two-col,.contact-grid { grid-template-columns:1fr; }
   footer { padding:1.5rem; }
   .terminal-div { padding:1rem 1.5rem; }
+  .projects-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -599,19 +782,11 @@ footer {
   <!-- PHOTO -->
   <div class="hero-photo">
     <div class="photo-frame">
-      <!-- ============================================================
-           REMPLACEZ LE BLOC photo-placeholder PAR :
-           <img src="VOTRE_PHOTO.jpg" alt="Zerbane Akram">
-           ============================================================ -->
       <div class="photo-placeholder">
-
         <div class="hint">
-         
-          <img src="img1.JPG">
-          
+          <img src="img1.JPG" alt="Zerbane Akram" onerror="this.style.display='none'">
         </div>
       </div>
-      <!-- ============================================================ -->
       <div class="photo-corner tl"></div>
       <div class="photo-corner tr"></div>
       <div class="photo-corner bl"></div>
@@ -700,80 +875,146 @@ footer {
     </div>
     <div class="projects-grid">
 
+      <!-- ═══════════════════════════════════════════════
+           PROJET 01 — ANAOS / SOC Automatisé
+      ═══════════════════════════════════════════════ -->
       <div class="project-card reveal">
-        <div class="project-num">01</div>
-        <div class="project-header">
-          <div>
-            <div class="project-name">Projet ANAOS</div>
-            <div class="project-subtitle">Déploiement SOC Automatisé</div>
+
+        <!-- ╔══════════════════════════════════════════╗
+             ║  ZONE IMAGE PROJET 01                   ║
+             ║  Remplacez src="..." par votre schéma   ║
+             ║  Taille recommandée : 800×450 px (16:9) ║
+             ╚══════════════════════════════════════════╝ -->
+        <div class="project-img-zone">
+          <!-- <img src="projet-anaos-schema.png" alt="Architecture ANAOS SOC"> -->
+          <div class="project-img-placeholder">
+            <div class="ph-icon">🏗️</div>
+            <div class="ph-label">📌 Schéma projet 01<br>Architecture SOC</div>
+            <div class="ph-hint">Décommentez &lt;img src="..."&gt;<br>et placez votre image ici<br>Format 16:9 recommandé</div>
           </div>
-          <div class="project-date">Fév 2026</div>
+          <div class="project-img-corners-bl"></div>
+          <div class="project-img-corners-br"></div>
         </div>
-        <div class="project-subtitle" style="color:var(--green)">Architecture SIEM, Orchestration & Détection</div>
-        <ul class="project-desc" style="list-style:none;">
-          <li>Orchestration du déploiement via <strong>Ansible</strong> des agents d'endpoints Windows (Sysmon) et Linux (Auditd)</li>
-          <li>Centralisation du monitoring, génération d'alertes avec <strong>Wazuh Manager</strong> en zone réseau isolée</li>
-          <li>Ingestion et enrichissement des logs via la stack <strong>OpenSearch/ELK</strong> (Logstash/Fluent.d)</li>
-          <li>Cartographie détection avec <strong>MITRE ATT&CK Navigator</strong> et suivi KPI SOC</li>
-        </ul>
-        <div class="project-tech">
-          <span class="tech-badge">Wazuh</span>
-          <span class="tech-badge">Ansible</span>
-          <span class="tech-badge">OpenSearch</span>
-          <span class="tech-badge">ELK</span>
-          <span class="tech-badge">MITRE ATT&CK</span>
-          <span class="tech-badge">Linux</span>
+
+        <div class="project-body">
+          <div class="project-num">01</div>
+          <div class="project-header">
+            <div>
+              <div class="project-name">Projet ANAOS</div>
+            </div>
+            <div class="project-date">Fév 2026</div>
+          </div>
+          <div class="project-subtitle">Déploiement SOC Automatisé</div>
+          <div class="project-subtitle" style="color:var(--green)">Architecture SIEM, Orchestration & Détection</div>
+          <ul class="project-desc">
+            <li>Orchestration du déploiement via <strong>Ansible</strong> des agents d'endpoints Windows (Sysmon) et Linux (Auditd)</li>
+            <li>Centralisation du monitoring, génération d'alertes avec <strong>Wazuh Manager</strong> en zone réseau isolée</li>
+            <li>Ingestion et enrichissement des logs via la stack <strong>OpenSearch/ELK</strong> (Logstash/Fluent.d)</li>
+            <li>Cartographie détection avec <strong>MITRE ATT&CK Navigator</strong> et suivi KPI SOC</li>
+          </ul>
+          <div class="project-tech">
+            <span class="tech-badge">Wazuh</span>
+            <span class="tech-badge">Ansible</span>
+            <span class="tech-badge">OpenSearch</span>
+            <span class="tech-badge">ELK</span>
+            <span class="tech-badge">MITRE ATT&CK</span>
+            <span class="tech-badge">Linux</span>
+          </div>
         </div>
       </div>
 
+      <!-- ═══════════════════════════════════════════════
+           PROJET 02 — Secure Chat Application
+      ═══════════════════════════════════════════════ -->
       <div class="project-card reveal">
-        <div class="project-num">02</div>
-        <div class="project-header">
-          <div>
-            <div class="project-name">Secure Chat<br>Application</div>
-            <div class="project-subtitle">Messagerie Chiffrée</div>
+
+        <!-- ╔══════════════════════════════════════════╗
+             ║  ZONE IMAGE PROJET 02                   ║
+             ║  Remplacez src="..." par votre schéma   ║
+             ║  Taille recommandée : 800×450 px (16:9) ║
+             ╚══════════════════════════════════════════╝ -->
+        <div class="project-img-zone">
+          <!-- <img src="projet-securechat-schema.png" alt="Schéma Secure Chat"> -->
+          <div class="project-img-placeholder">
+            <div class="ph-icon">🔐</div>
+            <div class="ph-label">📌 Schéma projet 02<br>Protocole Cryptographique</div>
+            <div class="ph-hint">Décommentez &lt;img src="..."&gt;<br>et placez votre image ici<br>Format 16:9 recommandé</div>
           </div>
-          <div class="project-date">Déc 2025</div>
+          <div class="project-img-corners-bl"></div>
+          <div class="project-img-corners-br"></div>
         </div>
-        <div class="project-subtitle" style="color:var(--cyan)">ReactJS & Cryptographie</div>
-        <ul class="project-desc" style="list-style:none;">
-          <li>Développement d'une messagerie temps réel chiffrée end-to-end</li>
-          <li>Implémentation du protocole <strong>Diffie-Hellman</strong> pour l'échange de clés</li>
-          <li>Chiffrement <strong>AES</strong> de toutes les communications</li>
-        </ul>
-        <div class="project-tech">
-          <span class="tech-badge">ReactJS</span>
-          <span class="tech-badge">Diffie-Hellman</span>
-          <span class="tech-badge">AES</span>
-          <span class="tech-badge">WebSockets</span>
+
+        <div class="project-body">
+          <div class="project-num">02</div>
+          <div class="project-header">
+            <div>
+              <div class="project-name">Secure Chat<br>Application</div>
+            </div>
+            <div class="project-date">Déc 2025</div>
+          </div>
+          <div class="project-subtitle">Messagerie Chiffrée</div>
+          <div class="project-subtitle" style="color:var(--cyan)">ReactJS & Cryptographie</div>
+          <ul class="project-desc">
+            <li>Développement d'une messagerie temps réel chiffrée end-to-end</li>
+            <li>Implémentation du protocole <strong>Diffie-Hellman</strong> pour l'échange de clés</li>
+            <li>Chiffrement <strong>AES</strong> de toutes les communications</li>
+          </ul>
+          <div class="project-tech">
+            <span class="tech-badge">ReactJS</span>
+            <span class="tech-badge">Diffie-Hellman</span>
+            <span class="tech-badge">AES</span>
+            <span class="tech-badge">WebSockets</span>
+          </div>
         </div>
       </div>
 
+      <!-- ═══════════════════════════════════════════════
+           PROJET 03 — Analyse ML / Anomalies Réseau
+      ═══════════════════════════════════════════════ -->
       <div class="project-card reveal">
-        <div class="project-num">03</div>
-        <div class="project-header">
-          <div>
-            <div class="project-name">Analyse de<br>Données ML</div>
-            <div class="project-subtitle">Détection d'Anomalies Réseau</div>
+
+        <!-- ╔══════════════════════════════════════════╗
+             ║  ZONE IMAGE PROJET 03                   ║
+             ║  Remplacez src="..." par votre schéma   ║
+             ║  Taille recommandée : 800×450 px (16:9) ║
+             ╚══════════════════════════════════════════╝ -->
+        <div class="project-img-zone">
+          <!-- <img src="projet-ml-schema.png" alt="Schéma ML Détection Anomalies"> -->
+          <div class="project-img-placeholder">
+            <div class="ph-icon">🤖</div>
+            <div class="ph-label">📌 Schéma projet 03<br>Pipeline ML & Détection</div>
+            <div class="ph-hint">Décommentez &lt;img src="..."&gt;<br>et placez votre image ici<br>Format 16:9 recommandé</div>
           </div>
-          <div class="project-date">Nov 2025</div>
+          <div class="project-img-corners-bl"></div>
+          <div class="project-img-corners-br"></div>
         </div>
-        <div class="project-subtitle" style="color:var(--orange)">Python (Scikit-learn) pour la Sécurité</div>
-        <ul class="project-desc" style="list-style:none;">
-          <li>Détection d'anomalies réseaux via algorithmes <strong>Random Forest</strong> et <strong>KNN</strong></li>
-          <li>Preprocessing et feature engineering sur datasets trafic réseau</li>
-          <li>Évaluation des modèles avec métriques de précision et rappel</li>
-        </ul>
-        <div class="project-tech">
-          <span class="tech-badge">Python</span>
-          <span class="tech-badge">Scikit-learn</span>
-          <span class="tech-badge">Random Forest</span>
-          <span class="tech-badge">KNN</span>
-          <span class="tech-badge">Pandas</span>
+
+        <div class="project-body">
+          <div class="project-num">03</div>
+          <div class="project-header">
+            <div>
+              <div class="project-name">Analyse de<br>Données ML</div>
+            </div>
+            <div class="project-date">Nov 2025</div>
+          </div>
+          <div class="project-subtitle">Détection d'Anomalies Réseau</div>
+          <div class="project-subtitle" style="color:var(--orange)">Python (Scikit-learn) pour la Sécurité</div>
+          <ul class="project-desc">
+            <li>Détection d'anomalies réseaux via algorithmes <strong>Random Forest</strong> et <strong>KNN</strong></li>
+            <li>Preprocessing et feature engineering sur datasets trafic réseau</li>
+            <li>Évaluation des modèles avec métriques de précision et rappel</li>
+          </ul>
+          <div class="project-tech">
+            <span class="tech-badge">Python</span>
+            <span class="tech-badge">Scikit-learn</span>
+            <span class="tech-badge">Random Forest</span>
+            <span class="tech-badge">KNN</span>
+            <span class="tech-badge">Pandas</span>
+          </div>
         </div>
       </div>
 
-    </div>
+    </div><!-- end .projects-grid -->
   </div>
 </section>
 
@@ -911,7 +1152,7 @@ footer {
 <footer>
   <div class="footer-sig">© 2026 <span>Zerbane Akram</span> — Cybersécurité & IoT</div>
   <div class="footer-sig">Conçu avec <span>♥</span> — ENSA Khouribga</div>
-  <div class="footer-sig"><span>ZA_</span>PORTFOLIO v1.0</div>
+  <div class="footer-sig"><span>ZA_</span>PORTFOLIO v2.0</div>
 </footer>
 
 <script>
@@ -968,5 +1209,4 @@ window.addEventListener('scroll',()=>{
 });
 </script>
 </body>
-
-</html
+</html>
